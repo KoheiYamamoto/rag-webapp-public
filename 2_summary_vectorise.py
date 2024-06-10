@@ -1,3 +1,4 @@
+import threading
 import os, glob, time, motor.motor_asyncio, asyncio
 from urllib.parse import quote_plus, urlparse, urlunparse
 from openai import AzureOpenAI
@@ -40,7 +41,17 @@ def setup_clients():
 # クライアントをセットアップ
 client, db, collection = setup_clients()
 
-async def process_record(doc):
+# mongo db からデータを取得
+async def get_data():
+  """
+  Get data from MongoDB.
+  Returns:
+    List: A list of documents from the MongoDB collection.
+  """
+  cursor = collection.find({})
+  return await cursor.to_list(None)
+
+def process_record(doc):
     print(f"--- Processing record: {doc['_id']} --- ")
     # もし、要約がすでに存在している場合は、スキップ
     if 'summary' in doc:
@@ -65,18 +76,24 @@ async def process_record(doc):
     # レコードの更新
     doc['summary'] = summary
     doc['summary_vectors'] = vectors
-    await collection.replace_one({'_id': doc['_id']}, doc)
+    collection.replace_one({'_id': doc['_id']}, doc)
 
-async def process_records():
-  cursor = collection.find({}, no_cursor_timeout=True)
-  tasks = []
-  try:
-    async for doc in cursor:
-        task = asyncio.ensure_future(process_record(doc))
-        tasks.append(task)
-    await asyncio.gather(*tasks)
-  finally:
-    await cursor.close()
+# データを表示
+async def dispatch_thread():
+    """
+    Print data from MongoDB.
+    """
+    data = await get_data()
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(process_records())
+    threads = []
+    for doc in data:
+        t = threading.Thread(target=process_record, args=(doc,))
+        t.start()
+        threads.append(t)
+
+    # Wait for all threads to complete
+    for t in threads:
+        t.join()
+
+if __name__ == "__main__":
+    asyncio.run(dispatch_thread())
