@@ -5,8 +5,8 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from dotenv import load_dotenv
 load_dotenv()
 
-embedding_model_name = 'embedding01' # OpenAI Studioでデプロイしたモデルの名前
-gpt_model_name = 'gpt-4-turbo' # OpenAI Studioでデプロイしたモデルの名前
+embedding_model_name = os.getenv('AZURE_OPENAI_DEPLOYMENT_VECTORISE')
+gpt_model_name = os.getenv('AZURE_OPENAI_DEPLOYMENT_SUMMARISE') 
 
 def setup_clients():
   """

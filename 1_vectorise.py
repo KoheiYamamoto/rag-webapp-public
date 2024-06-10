@@ -26,7 +26,7 @@ mongo_conn_str = urlunparse(url_parts) # 接続文字列を再構築
 db_name = "db1"  # データベース名
 collection_name = "coll_holtest"  # コレクション名
 
-embedding_model_name = 'embedding01' # OpenAI Studioでデプロイしたモデルの名前
+embedding_model_name = os.getenv('AZURE_OPENAI_DEPLOYMENT_VECTORISE') # OpenAI Studioでデプロイしたモデルの名前
 
 # Azure OpenAIのクライアントを生成
     

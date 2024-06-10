@@ -39,7 +39,7 @@ client = motor.motor_asyncio.AsyncIOMotorClient(mongo_conn_str)
 db = client[mongo_db_name]
 collection = db[mongo_collection_name]
 
-embedding_model_name = 'embedding01'
+embedding_model_name = os.getenv('AZURE_OPENAI_DEPLOYMENT_VECTORISE')
 
 async def main(): 
     # テキスト入力

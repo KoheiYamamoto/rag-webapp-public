@@ -36,7 +36,7 @@ db = client[mongo_db_name]
 collection = db[mongo_collection_name]
 
 if "openai_model" not in st.session_state: # セッション内で使用するモデルが指定されていない場合のデフォルト値
-    st.session_state["openai_model"] = "gpt-4-turbo"
+    st.session_state["openai_model"] = os.getenv('AZURE_OPENAI_DEPLOYMENT_SUMMARISE')
 if "messages" not in st.session_state: # セッション内のメッセージが指定されていない場合のデフォルト値
     st.session_state.messages = []
     st.session_state.prompt_completions = []
@@ -46,7 +46,7 @@ for message in st.session_state.messages: # 以前のメッセージを表示
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-embedding_model_name = 'embedding01' # OpenAI Studioでデプロイしたモデルの名前
+embedding_model_name = os.getenv('AZURE_OPENAI_DEPLOYMENT_VECTORISE') # OpenAI Studioでデプロイしたモデルの名前
 
 # 検索結果を含んだプロンプトの作成
 async def rag_prompt(user_input):
